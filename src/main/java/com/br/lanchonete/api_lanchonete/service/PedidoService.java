@@ -88,7 +88,8 @@ public class PedidoService {
     }
 
     public PedidoResponse atualizar(Integer id, PedidoRequest pedidoRequest) {
-        Pedido pedido = new Pedido();
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> 
+        new NotFoundException("Pedido não encontrado", "PEDIDO_NOT_FOUND", HttpStatus.NOT_FOUND));
         Cardapio cardapio = cardapioRepository.findById(pedidoRequest.lancheId()).orElseThrow(() ->
         new NotFoundException("Lanche não encontrado!", "CARDAPIO_NOT_FOUND", HttpStatus.NOT_FOUND));
 
