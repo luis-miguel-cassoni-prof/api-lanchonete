@@ -19,10 +19,12 @@ import com.br.lanchonete.api_lanchonete.dto.pedido.PedidoRequest;
 import com.br.lanchonete.api_lanchonete.dto.pedido.PedidoResponse;
 import com.br.lanchonete.api_lanchonete.service.PedidoService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController 
 @RequestMapping ("/pedido")
+@Tag (name = "Pedido", description = "Gerenciar os pedidos da api")
 public class PedidoController {
 
     @Autowired 

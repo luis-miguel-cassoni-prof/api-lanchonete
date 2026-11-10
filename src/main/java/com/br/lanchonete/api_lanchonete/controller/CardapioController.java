@@ -18,8 +18,11 @@ import com.br.lanchonete.api_lanchonete.dto.cardapio.CardapioRequest;
 import com.br.lanchonete.api_lanchonete.dto.cardapio.CardapioResponse;
 import com.br.lanchonete.api_lanchonete.service.CardapioService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController 
 @RequestMapping ("/cardapio")
+@Tag (name = "Cardápio", description = "Gerenciar os lanches disponíveis no cardápio")
 public class CardapioController {
     
     @Autowired 
