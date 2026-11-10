@@ -1,4 +1,4 @@
-package com.br.lanchonete.api_lanchonete.dto;
+package com.br.lanchonete.api_lanchonete.dto.cardapio;
 
 import java.math.BigDecimal;
 
