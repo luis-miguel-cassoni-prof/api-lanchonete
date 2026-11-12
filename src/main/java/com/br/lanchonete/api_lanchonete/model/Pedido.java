@@ -18,17 +18,17 @@ import lombok.Setter;
 public class Pedido {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Integer id;
     
     @Column (nullable = false, length = 50)
-    String nomeCliente;
+    private String nomeCliente;
     
     @ManyToOne
-    Cardapio lanche;
+    private Cardapio lanche;
 
     @Column (nullable = false)
-    Integer quantidade;
+    private Integer quantidade;
 
     @Column (nullable = false)
-    BigDecimal totalPedido;
+    private BigDecimal totalPedido;
 }

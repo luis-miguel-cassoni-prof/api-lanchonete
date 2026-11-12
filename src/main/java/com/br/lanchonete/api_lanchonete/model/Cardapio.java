@@ -16,14 +16,14 @@ import lombok.Setter;
 public class Cardapio {
     @Id 
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    Short id;
+    private Short id;
 
     @Column (nullable = false, length = 40)
-    String nomeLanche;
+    private String nomeLanche;
 
     @Column (nullable = true, length = 200)
-    String descricao;
+    private String descricao;
 
     @Column (nullable = false)
-    BigDecimal valor;
+    private BigDecimal valor;
 }
