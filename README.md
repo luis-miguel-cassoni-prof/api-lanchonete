@@ -217,7 +217,7 @@ No Swagger UI, consulte `GET /usuario/csrf`, clique em **Authorize** e informe o
 
 O totem pode registrar um pedido sem login usando somente `POST /pedido`; esse endpoint também não exige token CSRF. Todas as outras operações da API, incluindo leitura e alteração do cardápio e consulta/edição de pedidos, exigem uma sessão de administrador. A interface e os documentos OpenAPI são públicos. Use HTTPS fora do ambiente local.
 
-Não há cadastro público: os usuários precisam existir na tabela `usuario`, com senha armazenada em BCrypt. Como `ddl-auto=create` recria as tabelas ao iniciar, ele também recria os usuários semeados pelo `import.sql` local.
+Não há cadastro público: os usuários precisam existir na tabela `usuario`, com senha armazenada em BCrypt. Como `ddl-auto=create` recria as tabelas ao iniciar, o `import.sql` local recria o administrador e cinco lanches de demonstração em cada inicialização.
 
 | Recurso | Endereço |
 | --- | --- |
