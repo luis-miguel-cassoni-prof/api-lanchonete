@@ -2,6 +2,8 @@ package com.br.lanchonete.api_lanchonete.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +17,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 @Configuration 
 @EnableWebSecurity 
@@ -26,7 +29,13 @@ public class SecurityConfig {
         SecurityContextRepository securityContextRepository
     ) throws Exception {
         return httpSecurity
-            .csrf(csrf -> csrf.csrfTokenRepository(new HttpSessionCsrfTokenRepository()))
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(new HttpSessionCsrfTokenRepository())
+                .ignoringRequestMatchers(request ->
+                    HttpMethod.POST.matches(request.getMethod())
+                        && "/pedido".equals(request.getServletPath())
+                )
+            )
             .securityContext(context -> context.securityContextRepository(securityContextRepository))
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -35,7 +44,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/usuario/csrf", "/usuario/login").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.POST, "/pedido").permitAll()
+                .anyRequest().hasRole("ADMIN")
+            )
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             )
             .build();
     }

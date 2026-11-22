@@ -201,7 +201,7 @@ O login cria uma sessão no servidor. Primeiro obtenha um token CSRF:
 GET /usuario/csrf
 ```
 
-Envie o valor `token` retornado no cabeçalho indicado por `headerName` em toda requisição POST, PUT ou DELETE, incluindo login e logout. Em seguida, faça login:
+Envie o valor `token` retornado no cabeçalho indicado por `headerName` nas operações administrativas que alteram dados, incluindo login e logout. Em seguida, faça login:
 
 ```http
 POST /usuario/login
@@ -213,7 +213,9 @@ X-CSRF-TOKEN: <token>
 
 O login retorna o nome do usuário e um cookie de sessão `JSESSIONID`; mantenha esse cookie nas chamadas seguintes. Para sair, envie `POST /usuario/logout` com o cookie e o token CSRF. O logout invalida a sessão no servidor. Credenciais inválidas retornam `401 Unauthorized`.
 
-No Swagger UI, consulte `GET /usuario/csrf`, clique em **Authorize** e informe o token CSRF retornado. Depois faça login; o navegador mantém o cookie de sessão para as chamadas seguintes. A interface e os documentos OpenAPI são públicos, mas os endpoints de negócio exigem uma sessão autenticada. Use HTTPS fora do ambiente local.
+No Swagger UI, consulte `GET /usuario/csrf`, clique em **Authorize** e informe o token CSRF retornado. Depois faça login; o navegador mantém o cookie de sessão para as chamadas seguintes.
+
+O totem pode registrar um pedido sem login usando somente `POST /pedido`; esse endpoint também não exige token CSRF. Todas as outras operações da API, incluindo leitura e alteração do cardápio e consulta/edição de pedidos, exigem uma sessão de administrador. A interface e os documentos OpenAPI são públicos. Use HTTPS fora do ambiente local.
 
 Não há cadastro público: os usuários precisam existir na tabela `usuario`, com senha armazenada em BCrypt. Como `ddl-auto=create` recria as tabelas ao iniciar, ele também recria os usuários semeados pelo `import.sql` local.
 
