@@ -150,9 +150,11 @@ spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-spring.jpa.hibernate.ddl-auto=update
+spring.jpa.hibernate.ddl-auto=create
 spring.jpa.show-sql=true
 ```
+
+`create` recria as tabelas ao iniciar a aplicação e apaga os dados anteriores. Portanto, com essa configuração, cadastre os usuários novamente no banco após cada inicialização. Para preservar usuários e demais dados entre reinicializações, altere para `update`.
 
 | Variável | Exemplo | Finalidade |
 | --- | --- | --- |
@@ -190,6 +192,30 @@ Para executar pela IDE, configure as três variáveis na configuração de execu
 ### 5. Acessar a aplicação
 
 Com a inicialização concluída, os endereços locais são:
+
+#### Autenticação
+
+O login cria uma sessão no servidor. Primeiro obtenha um token CSRF:
+
+```http
+GET /usuario/csrf
+```
+
+Envie o valor `token` retornado no cabeçalho indicado por `headerName` em toda requisição POST, PUT ou DELETE, incluindo login e logout. Em seguida, faça login:
+
+```http
+POST /usuario/login
+Content-Type: application/json
+X-CSRF-TOKEN: <token>
+
+{"nome":"seu_usuario","senha":"sua_senha"}
+```
+
+O login retorna o nome do usuário e um cookie de sessão `JSESSIONID`; mantenha esse cookie nas chamadas seguintes. Para sair, envie `POST /usuario/logout` com o cookie e o token CSRF. O logout invalida a sessão no servidor. Credenciais inválidas retornam `401 Unauthorized`.
+
+No Swagger UI, consulte `GET /usuario/csrf`, clique em **Authorize** e informe o token CSRF retornado. Depois faça login; o navegador mantém o cookie de sessão para as chamadas seguintes. A interface e os documentos OpenAPI são públicos, mas os endpoints de negócio exigem uma sessão autenticada. Use HTTPS fora do ambiente local.
+
+Não há cadastro público: os usuários precisam existir na tabela `usuario`, com senha armazenada em BCrypt. Como `ddl-auto=create` recria as tabelas ao iniciar, ele também recria os usuários semeados pelo `import.sql` local.
 
 | Recurso | Endereço |
 | --- | --- |
@@ -507,7 +533,7 @@ Requisições de cadastro, listagem, consulta, atualização e exclusão separad
 
 ## Estado atual e possíveis melhorias
 
-A versão atual disponibiliza operações de CRUD para cardápio e pedidos, cálculo do total e documentação Swagger. Não possui autenticação, autorização, fila de atendimento, status de preparo ou paginação.
+A versão atual disponibiliza operações de CRUD para cardápio e pedidos, cálculo do total, autenticação por sessão com login/logout, proteção CSRF e documentação Swagger. Ainda não possui fila de atendimento, status de preparo ou paginação.
 
 Possíveis evoluções, ainda não implementadas:
 

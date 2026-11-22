@@ -54,7 +54,7 @@ public class PedidoService {
 
         for(Pedido pedido : listaPedidos) {
             response.add(new PedidoResponse(pedido.getId(), pedido.getNomeCliente(), pedido.getLanche(), 
-                pedido.getQuantidade(), pedido.getTotalPedido()));
+            pedido.getQuantidade(), pedido.getTotalPedido()));
         }
 
         log.info("Listando todos os pedidos!!!");
