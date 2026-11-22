@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.br.lanchonete.api_lanchonete.dto.pedido.PedidoRequest;
 import com.br.lanchonete.api_lanchonete.dto.pedido.PedidoResponse;
+import com.br.lanchonete.api_lanchonete.dto.pedido.AtualizarStatusPedidoRequest;
+import com.br.lanchonete.api_lanchonete.dto.pedido.ClienteProntoResponse;
 import com.br.lanchonete.api_lanchonete.service.PedidoService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,6 +41,21 @@ public class PedidoController {
     @GetMapping ("/listarTudo")
     public List<PedidoResponse> listarTudo() {
         return pedidoService.listarTudo();
+    }
+
+    @GetMapping("/pronto")
+    public ResponseEntity<ClienteProntoResponse> buscarClientePronto() {
+        return pedidoService.buscarClientePronto()
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
+    @PatchMapping("/{id}/status")
+    public PedidoResponse atualizarStatus(
+        @PathVariable Integer id,
+        @Valid @RequestBody AtualizarStatusPedidoRequest request
+    ) {
+        return pedidoService.atualizarStatus(id, request.status());
     }
 
     @GetMapping(value = "/{id}")

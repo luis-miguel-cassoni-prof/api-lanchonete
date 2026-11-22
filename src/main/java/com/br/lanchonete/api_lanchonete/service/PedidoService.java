@@ -8,9 +8,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.br.lanchonete.api_lanchonete.dto.pedido.ClienteProntoResponse;
 import com.br.lanchonete.api_lanchonete.dto.pedido.PedidoRequest;
 import com.br.lanchonete.api_lanchonete.dto.pedido.PedidoResponse;
+import com.br.lanchonete.api_lanchonete.enums.StatusPedido;
 import com.br.lanchonete.api_lanchonete.exceptions.NotFoundException;
 import com.br.lanchonete.api_lanchonete.model.Cardapio;
 import com.br.lanchonete.api_lanchonete.model.Pedido;
@@ -40,25 +44,56 @@ public class PedidoService {
         pedido.setLanche(cardapio);
         pedido.setQuantidade(pedidoRequest.quantidade());
         pedido.setTotalPedido(total);
+        pedido.setStatus(StatusPedido.AGUARDANDO);
 
         log.info("Anotando um pedido!!!");
         pedidoRepository.save(pedido);
 
-        return new PedidoResponse(pedido.getId(), pedido.getNomeCliente(), pedido.getLanche(), 
-            pedido.getQuantidade(), pedido.getTotalPedido());
+        return toResponse(pedido);
     }
 
     public List<PedidoResponse> listarTudo() {
-        List<Pedido> listaPedidos = pedidoRepository.findAll();
+        List<Pedido> listaPedidos = pedidoRepository.findAllByOrderByIdAsc();
         List<PedidoResponse> response = new ArrayList<>();
 
         for(Pedido pedido : listaPedidos) {
-            response.add(new PedidoResponse(pedido.getId(), pedido.getNomeCliente(), pedido.getLanche(), 
-            pedido.getQuantidade(), pedido.getTotalPedido()));
+            response.add(toResponse(pedido));
         }
 
         log.info("Listando todos os pedidos!!!");
         return response;
+    }
+
+    public Optional<ClienteProntoResponse> buscarClientePronto() {
+        return pedidoRepository.findFirstByStatusOrderByIdAsc(StatusPedido.PRONTO)
+            .map(pedido -> new ClienteProntoResponse(pedido.getNomeCliente()));
+    }
+
+    @Transactional
+    public PedidoResponse atualizarStatus(Integer id, StatusPedido novoStatus) {
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() ->
+            new NotFoundException("Pedido não encontrado", "PEDIDO_NOT_FOUND", HttpStatus.NOT_FOUND));
+
+        Pedido primeiroAtivo = pedidoRepository.findFirstByStatusNotOrderByIdAsc(StatusPedido.ENTREGUE)
+            .orElseThrow(() -> conflito("Não há pedidos pendentes na fila."));
+
+        if (!primeiroAtivo.getId().equals(id)) {
+            throw conflito("O pedido deve ser processado na ordem de chegada.");
+        }
+
+        StatusPedido proximoStatus = switch (primeiroAtivo.getStatus()) {
+            case AGUARDANDO -> StatusPedido.EM_PREPARO;
+            case EM_PREPARO -> StatusPedido.PRONTO;
+            case PRONTO -> StatusPedido.ENTREGUE;
+            case ENTREGUE -> throw conflito("O pedido já foi entregue.");
+        };
+
+        if (novoStatus != proximoStatus) {
+            throw conflito("Transição de status inválida. Próximo status: " + proximoStatus);
+        }
+
+        primeiroAtivo.setStatus(novoStatus);
+        return toResponse(pedidoRepository.save(primeiroAtivo));
     }
 
     public Optional<PedidoResponse> buscarPorId(Integer id) {
@@ -68,13 +103,7 @@ public class PedidoService {
             throw new NotFoundException("Pedido não encontrado", "PEDIDO_NOT_FOUND", HttpStatus.NOT_FOUND);
         }
 
-        return pedidoRepository.findById(id).map(pedido -> new PedidoResponse(
-            pedido.getId(),
-            pedido.getNomeCliente(),
-            pedido.getLanche(),
-            pedido.getQuantidade(),
-            pedido.getTotalPedido()
-        ));
+        return pedidoRepository.findById(id).map(this::toResponse);
     }
 
     public void deletarPorId(Integer id) {
@@ -104,7 +133,21 @@ public class PedidoService {
 
         pedidoRepository.save(pedido);
 
-        return new PedidoResponse(pedido.getId(), pedido.getNomeCliente(), pedido.getLanche(), 
-            pedido.getQuantidade(), pedido.getTotalPedido());
+        return toResponse(pedido);
+    }
+
+    private PedidoResponse toResponse(Pedido pedido) {
+        return new PedidoResponse(
+            pedido.getId(),
+            pedido.getNomeCliente(),
+            pedido.getLanche(),
+            pedido.getQuantidade(),
+            pedido.getTotalPedido(),
+            pedido.getStatus()
+        );
+    }
+
+    private ResponseStatusException conflito(String mensagem) {
+        return new ResponseStatusException(HttpStatus.CONFLICT, mensagem);
     }
 }

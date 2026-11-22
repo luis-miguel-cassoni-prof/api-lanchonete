@@ -2,12 +2,17 @@ package com.br.lanchonete.api_lanchonete.model;
 
 import java.math.BigDecimal;
 
+import com.br.lanchonete.api_lanchonete.enums.StatusPedido;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,4 +36,15 @@ public class Pedido {
 
     @Column (nullable = false)
     private BigDecimal totalPedido;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StatusPedido status;
+
+    @PrePersist
+    private void inicializarStatus() {
+        if (status == null) {
+            status = StatusPedido.AGUARDANDO;
+        }
+    }
 }

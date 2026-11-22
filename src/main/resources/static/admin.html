@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183a35">
+  <title>Administração | Lanchonete</title>
+  <link rel="stylesheet" href="/css/app.css">
+  <script src="/js/admin.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Lanchonete, início">
+      <span class="brand-mark">L</span>
+      <span><strong>lanchonete</strong><small>painel administrativo</small></span>
+    </a>
+    <nav class="top-links" aria-label="Navegação">
+      <a href="/">Totem</a>
+      <a class="active" href="/admin.html">Administração</a>
+      <a href="/pronto.html">Pedidos prontos</a>
+    </nav>
+  </header>
+
+  <main class="page-shell admin-shell">
+    <section id="loginView" class="auth-panel panel">
+      <p class="eyebrow">ÁREA RESTRITA</p>
+      <h1>Acesso do administrador</h1>
+      <p class="muted">Entre para gerenciar o cardápio e acompanhar a fila de pedidos.</p>
+      <form id="loginForm" class="stack-form">
+        <label for="loginName">Usuário</label>
+        <input id="loginName" name="nome" type="text" autocomplete="username" required>
+        <label for="loginPassword">Senha</label>
+        <input id="loginPassword" name="senha" type="password" autocomplete="current-password" required>
+        <button class="button button-primary button-wide" type="submit">Entrar</button>
+      </form>
+      <p id="loginMessage" class="form-message" role="alert"></p>
+    </section>
+
+    <section id="adminView" class="hidden">
+      <div class="admin-heading">
+        <div>
+          <p class="eyebrow">PAINEL DE CONTROLE</p>
+          <h1>Bom trabalho!</h1>
+          <p class="muted">Gerencie os lanches e acompanhe os pedidos por ordem de chegada.</p>
+        </div>
+        <button id="logoutButton" class="button button-outline" type="button">Sair</button>
+      </div>
+
+      <div class="tab-bar" role="tablist" aria-label="Seções administrativas">
+        <button id="ordersTab" class="tab-button active" type="button" role="tab" aria-selected="true">Fila de pedidos</button>
+        <button id="menuTab" class="tab-button" type="button" role="tab" aria-selected="false">Cardápio</button>
+      </div>
+
+      <section id="ordersSection" class="admin-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">FIFO · PRIMEIRO A CHEGAR, PRIMEIRO A SAIR</p>
+            <h2>Fila de pedidos</h2>
+          </div>
+          <button id="refreshOrders" class="button button-outline" type="button">Atualizar fila</button>
+        </div>
+
+        <div class="admin-columns">
+          <section class="panel form-panel">
+            <p class="eyebrow">OPERAÇÃO</p>
+            <h3 id="orderFormTitle">Registrar pedido</h3>
+            <form id="adminOrderForm" class="stack-form">
+              <input id="orderEditId" type="hidden">
+              <label for="adminCustomerName">Nome do cliente</label>
+              <input id="adminCustomerName" name="nomeCliente" maxlength="50" required>
+              <label for="adminMenuSelect">Lanche</label>
+              <select id="adminMenuSelect" name="lancheId" required></select>
+              <label for="adminQuantity">Quantidade</label>
+              <input id="adminQuantity" name="quantidade" type="number" min="1" max="99" value="1" required>
+              <div class="form-actions">
+                <button id="saveOrder" class="button button-primary" type="submit">Adicionar pedido</button>
+                <button id="cancelOrderEdit" class="button button-quiet hidden" type="button">Cancelar edição</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel queue-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">ATENDIMENTO</p>
+                <h3>Pedidos em ordem</h3>
+              </div>
+              <span id="queueCount" class="count-badge">0 pedidos</span>
+            </div>
+            <div id="queueList" class="queue-list" aria-live="polite"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="menuSection" class="admin-section hidden">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">PRODUTOS</p>
+            <h2>Gerenciar cardápio</h2>
+          </div>
+        </div>
+        <div class="admin-columns">
+          <section class="panel form-panel">
+            <p class="eyebrow">CARDÁPIO</p>
+            <h3 id="menuFormTitle">Adicionar lanche</h3>
+            <form id="menuForm" class="stack-form">
+              <input id="menuEditId" type="hidden">
+              <label for="menuName">Nome</label>
+              <input id="menuName" name="nomeLanche" maxlength="40" required>
+              <label for="menuDescription">Descrição</label>
+              <textarea id="menuDescription" name="descricao" rows="3" maxlength="200" required></textarea>
+              <label for="menuPrice">Preço</label>
+              <input id="menuPrice" name="valor" type="number" min="0.01" step="0.01" required>
+              <div class="form-actions">
+                <button id="saveMenu" class="button button-primary" type="submit">Adicionar lanche</button>
+                <button id="cancelMenuEdit" class="button button-quiet hidden" type="button">Cancelar edição</button>
+              </div>
+            </form>
+          </section>
+          <section class="panel queue-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">DISPONÍVEIS NO TOTEM</p>
+                <h3>Lanches cadastrados</h3>
+              </div>
+              <span id="menuAdminCount" class="count-badge">0 lanches</span>
+            </div>
+            <div id="adminMenuList" class="admin-list"></div>
+          </section>
+        </div>
+      </section>
+      <p id="adminMessage" class="toast-message" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+</body>
+</html>

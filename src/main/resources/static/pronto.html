@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183a35">
+  <title>Pedido pronto | Lanchonete</title>
+  <link rel="stylesheet" href="/css/app.css">
+  <script src="/js/pronto.js" defer></script>
+</head>
+<body class="ready-page">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Lanchonete, início">
+      <span class="brand-mark">L</span>
+      <span><strong>lanchonete</strong><small>retirada de pedidos</small></span>
+    </a>
+    <nav class="top-links" aria-label="Navegação">
+      <a href="/">Totem</a>
+      <a href="/admin.html">Administração</a>
+    </nav>
+  </header>
+  <main class="ready-content">
+    <div class="ready-icon" aria-hidden="true">✓</div>
+    <p class="eyebrow">RETIRADA</p>
+    <h1>Pedido pronto</h1>
+    <p id="readyName" class="ready-name" aria-live="polite">Aguardando pedidos</p>
+    <p id="readyMessage" class="ready-message" role="status">Atualizando automaticamente</p>
+  </main>
+</body>
+</html>

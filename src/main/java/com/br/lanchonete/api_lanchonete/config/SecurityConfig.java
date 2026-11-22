@@ -43,7 +43,9 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/", "/index.html", "/admin.html", "/pronto.html", "/css/**", "/js/**").permitAll()
                 .requestMatchers("/usuario/csrf", "/usuario/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/cardapio/**", "/pedido/pronto").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedido").permitAll()
                 .anyRequest().hasRole("ADMIN")
             )

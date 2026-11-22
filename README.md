@@ -215,13 +215,16 @@ O login retorna o nome do usuário e um cookie de sessão `JSESSIONID`; mantenha
 
 No Swagger UI, consulte `GET /usuario/csrf`, clique em **Authorize** e informe o token CSRF retornado. Depois faça login; o navegador mantém o cookie de sessão para as chamadas seguintes.
 
-O totem pode registrar um pedido sem login usando somente `POST /pedido`; esse endpoint também não exige token CSRF. Todas as outras operações da API, incluindo leitura e alteração do cardápio e consulta/edição de pedidos, exigem uma sessão de administrador. A interface e os documentos OpenAPI são públicos. Use HTTPS fora do ambiente local.
+O totem pode consultar o cardápio por `GET /cardapio/**` e registrar pedidos por `POST /pedido` sem login; esse POST também não exige token CSRF. A tela de retirada consulta `GET /pedido/pronto`, que retorna somente o nome do cliente do pedido pronto mais antigo. Todas as demais operações, incluindo alterações no cardápio e consulta/edição da fila, exigem uma sessão de administrador. As páginas do front-end e os documentos OpenAPI são públicos. Use HTTPS fora do ambiente local.
 
 Não há cadastro público: os usuários precisam existir na tabela `usuario`, com senha armazenada em BCrypt. Como `ddl-auto=create` recria as tabelas ao iniciar, o `import.sql` local recria o administrador e cinco lanches de demonstração em cada inicialização.
 
 | Recurso | Endereço |
 | --- | --- |
 | URL base da API | `http://localhost:8080` |
+| Totem de pedidos | [http://localhost:8080/](http://localhost:8080/) |
+| Painel administrativo | [http://localhost:8080/admin.html](http://localhost:8080/admin.html) |
+| Painel de pedidos prontos | [http://localhost:8080/pronto.html](http://localhost:8080/pronto.html) |
 | Swagger UI | [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) |
 | Especificação OpenAPI em JSON | [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs) |
 
@@ -320,13 +323,15 @@ URL base local: `http://localhost:8080`.
 
 | Método | Rota | Operação | Sucesso |
 | --- | --- | --- | --- |
-| `POST` | `/pedido` | Registrar um pedido | `200 OK` |
+| `POST` | `/pedido` | Registrar um pedido (público para o totem) | `200 OK` |
 | `GET` | `/pedido/listarTudo` | Listar todos os pedidos | `200 OK` |
+| `GET` | `/pedido/pronto` | Obter somente o nome do cliente do pedido pronto mais antigo | `200 OK` ou `204 No Content` |
 | `GET` | `/pedido/{id}` | Buscar um pedido por ID | `200 OK` |
 | `PUT` | `/pedido/{id}` | Atualizar um pedido existente e recalcular o total | `200 OK` |
+| `PATCH` | `/pedido/{id}/status` | Avançar o pedido mais antigo na fila | `200 OK` |
 | `DELETE` | `/pedido/{id}` | Excluir um pedido | `204 No Content` |
 
-Os endpoints de listagem retornam arrays JSON; quando não há registros, retornam `[]`. Não há paginação nem garantia de ordenação específica implementada nas listagens.
+Os endpoints de listagem retornam arrays JSON; quando não há registros, retornam `[]`. Pedidos são listados por ID crescente, que representa a ordem de chegada. A fila permite somente as transições `AGUARDANDO` → `EM_PREPARO` → `PRONTO` → `ENTREGUE`, sempre para o pedido não entregue mais antigo. Tentar avançar outro pedido retorna `409 Conflict`.
 
 ## Exemplos de requisição e resposta
 
@@ -376,7 +381,8 @@ Use o cabeçalho `Content-Type: application/json` em requisições com corpo. Os
     "valor": 18.50
   },
   "quantidade": 2,
-  "totalPedido": 37.00
+  "totalPedido": 37.00,
+  "status": "AGUARDANDO"
 }
 ```
 
@@ -411,7 +417,10 @@ Ao testar o cardápio, envie nome e descrição preenchidos e um valor positivo.
 | `200 OK` | Cadastro, consulta, listagem ou atualização concluída |
 | `204 No Content` | Exclusão concluída, sem corpo de resposta |
 | `400 Bad Request` | JSON malformado, tipos incompatíveis ou falha de validação dos pedidos |
+| `401 Unauthorized` | Requisição protegida sem sessão autenticada |
+| `403 Forbidden` | Sessão sem autoridade de administrador |
 | `404 Not Found` | Lanche ou pedido não encontrado nas operações que verificam sua existência |
+| `409 Conflict` | Tentativa de avançar um pedido fora da ordem FIFO ou com transição inválida |
 | `500 Internal Server Error` | Falha não tratada, como determinadas violações de integridade no banco |
 
 ### Recurso não encontrado
@@ -535,7 +544,7 @@ Requisições de cadastro, listagem, consulta, atualização e exclusão separad
 
 ## Estado atual e possíveis melhorias
 
-A versão atual disponibiliza operações de CRUD para cardápio e pedidos, cálculo do total, autenticação por sessão com login/logout, proteção CSRF e documentação Swagger. Ainda não possui fila de atendimento, status de preparo ou paginação.
+A versão atual inclui o totem público, o painel de administração, a tela de pedidos prontos, CRUD de cardápio e pedidos, fila FIFO com estados de preparo, autenticação por sessão com login/logout, proteção CSRF e documentação Swagger. Ainda não possui pagamento ou paginação.
 
 Possíveis evoluções, ainda não implementadas:
 
@@ -547,7 +556,6 @@ Possíveis evoluções, ainda não implementadas:
 - Adicionar testes unitários e de integração para as operações.
 - Implementar paginação e filtros nas listagens.
 - Evoluir o pedido para suportar vários itens diferentes.
-- Adicionar fila e acompanhamento do preparo dos pedidos.
 
 ## Autor
 

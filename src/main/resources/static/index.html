@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183a35">
+  <title>Totem | Lanchonete</title>
+  <link rel="stylesheet" href="/css/app.css">
+  <script src="/js/totem.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Lanchonete, início">
+      <span class="brand-mark">L</span>
+      <span><strong>lanchonete</strong><small>pedido fácil, comida boa</small></span>
+    </a>
+    <nav class="top-links" aria-label="Navegação">
+      <a class="active" href="/">Totem</a>
+      <a href="/admin.html">Administração</a>
+      <a href="/pronto.html">Pedidos prontos</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="intro">
+      <div>
+        <p class="eyebrow">AUTOATENDIMENTO</p>
+        <h1>O que vai ser hoje?</h1>
+        <p class="muted">Escolha seu lanche, informe seu nome e envie o pedido.</p>
+      </div>
+      <span class="intro-badge">Sem pagamento nesta etapa</span>
+    </section>
+
+    <div class="totem-layout">
+      <section class="panel menu-panel" aria-labelledby="menu-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">FEITO NA HORA</p>
+            <h2 id="menu-title">Nosso cardápio</h2>
+          </div>
+          <span id="menuCount" class="count-badge">Carregando…</span>
+        </div>
+        <p id="menuMessage" class="inline-message" role="status">Buscando os lanches disponíveis…</p>
+        <div id="menuGrid" class="menu-grid"></div>
+      </section>
+
+      <aside class="panel order-panel" aria-labelledby="order-title">
+        <p class="eyebrow">SEU PEDIDO</p>
+        <h2 id="order-title">Quase lá</h2>
+        <div id="selectedItem" class="selected-item">
+          <span class="selected-icon" aria-hidden="true">+</span>
+          <span class="muted">Escolha um lanche do cardápio</span>
+        </div>
+
+        <form id="orderForm">
+          <label for="customerName">Nome para chamar</label>
+          <input id="customerName" name="nomeCliente" type="text" maxlength="50" autocomplete="given-name" placeholder="Ex.: Ana" required>
+
+          <label for="quantity">Quantidade</label>
+          <div class="quantity-control">
+            <button id="decreaseQuantity" class="quantity-button" type="button" aria-label="Diminuir quantidade">−</button>
+            <input id="quantity" name="quantidade" type="number" min="1" max="99" value="1" required>
+            <button id="increaseQuantity" class="quantity-button" type="button" aria-label="Aumentar quantidade">+</button>
+          </div>
+
+          <div class="total-row">
+            <span>Total estimado</span>
+            <strong id="orderTotal">R$ 0,00</strong>
+          </div>
+          <button id="submitOrder" class="button button-primary button-wide" type="submit" disabled>Enviar pedido</button>
+          <p class="fine-print">O pagamento será realizado no balcão.</p>
+        </form>
+        <p id="orderMessage" class="form-message" role="status" aria-live="polite"></p>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">Preparado com carinho · Lanchonete</footer>
+</body>
+</html>
